@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Extractor Pro</title>
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --bg-secondary: #1a1e24;
+            --bg-tertiary: #252b33;
+            --text-primary: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --accent: #6366f1;
+            --accent-hover: #4f52e0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #2f3540;
+            --card-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .left-panel, .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            border-radius: 16px;
+            padding: 16px 20px;
+            flex: 1;
+            min-width: 140px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-value.success {
+            color: var(--success);
+        }
+
+        .section {
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .file-upload {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .file-upload:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .key-preview {
+            font-family: 'Fira Code', monospace;
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+
+        .btn-success:hover {
+            filter: brightness(110%);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(110%);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .key-info {
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 16px 0;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .key-badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .results-section {
+            margin-top: 24px;
+        }
+
+        .webhook-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .webhook-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .webhook-list::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .webhook-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .webhook-list::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .webhook-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            animation: slideIn 0.3s ease;
+        }
+
+        .webhook-card.valid {
+            border-left: 4px solid var(--success);
+        }
+
+        .webhook-card.invalid {
+            border-left: 4px solid var(--danger);
+            opacity: 0.6;
+        }
+
+        .webhook-card.checking {
+            border-left: 4px solid var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .webhook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .webhook-name {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        .webhook-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-valid {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-invalid {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-checking {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .webhook-url {
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--text-secondary);
+            word-break: break-all;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .webhook-url:hover {
+            border-color: var(--accent);
+        }
+
+        .webhook-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .webhook-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .loader {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: var(--card-shadow);
+            animation: slideInRight 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h1>Webhook Extractor Pro</h1>
+                <div class="subtitle">Wczytaj customowy plik z kluczem i znajdź aktywne webhooki</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <span class="key-badge">v2.0</span>
+                <span class="key-badge">⚡ Custom Key</span>
+            </div>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-label">Znalezione tablice</div>
+                <div class="stat-value" id="totalArrays">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Potencjalne webhooki</div>
+                <div class="stat-value" id="potentialWebhooks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Aktywne webhooki</div>
+                <div class="stat-value success" id="activeWebhooks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Nieaktywne</div>
+                <div class="stat-value" style="color: var(--danger);" id="inactiveWebhooks">0</div>
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="left-panel">
+                <div class="section">
+                    <div class="section-title">
+                        <span>📁 1. Wczytaj plik z kluczem</span>
+                        <span class="key-badge">opcjonalne</span>
+                    </div>
+                    
+                    <div class="file-upload" onclick="document.getElementById('keyFile').click()">
+                        <input type="file" id="keyFile" accept=".java" onchange="loadKeyFile(event)">
+                        <div style="font-size: 14px; color: var(--text-secondary);">
+                            <span style="font-size: 24px;">📂</span><br>
+                            Kliknij aby wybrać plik .java z kluczem<br>
+                            <span style="font-size: 12px;">(np. lIlIlIlI.java, B.java, custom key)</span>
+                        </div>
+                    </div>
+
+                    <div id="keyInfo" style="display: none;">
+                        <div class="file-info">
+                            <div>
+                                <div style="font-weight: 500; margin-bottom: 4px;">📄 Wczytany klucz</div>
+                                <div class="key-preview" id="keyPreview"></div>
+                            </div>
+                            <button class="btn-icon" onclick="resetKey()">🗑️ Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="key-info" id="defaultKeyInfo">
+                        <span class="key-badge">🔑 DEFAULT KEY</span>
+                        <span class="key-value">[127, 58, 156, 29, 94, 139, 47, 109, 74, 12]</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>📝 2. Wklej kod Java z webhookami</span>
+                    </div>
+                    
+                    <textarea id="javaCode" placeholder="// Wklej tutaj kod Java z tablicami int[]...&#10;// Przykład:&#10;private static final int[] IllIllIl = new int[]{20, 68, 249, 117, 50, 151, 45, 118, ...}"></textarea>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="extractAndVerify()">
+                            <span>🔍</span> Wyciągnij i zweryfikuj
+                        </button>
+                        <button class="btn" onclick="clearAll()">
+                            <span>🗑️</span> Wyczyść
+                        </button>
+                        <button class="btn" onclick="pasteExample()">
+                            <span>📋</span> Wklej przykład
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="section">
+                    <div class="section-title">
+                        <span>🔍 3. Wyniki weryfikacji</span>
+                        <div style="display: flex; gap: 8px; margin-left: auto;">
+                            <button class="btn-icon" onclick="copyAllValid()" id="copyAllBtn" disabled>
+                                <span>📋</span> Kopiuj aktywne
+                            </button>
+                            <button class="btn-icon" onclick="exportResults()" id="exportBtn" style="display: none;">
+                                <span>📊</span> Eksportuj JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar" id="progressBar" style="display: none;">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+
+                    <div id="resultsSection" style="display: none;">
+                        <div class="webhook-list" id="webhookList"></div>
+                    </div>
+
+                    <div id="noResults" style="text-align: center; padding: 40px; color: var(--text-secondary); display: none;">
+                        <span style="font-size: 48px;">🔍</span>
+                        <p>Wklej kod Java i kliknij "Wyciągnij i zweryfikuj"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            ⚡ Automatyczna weryfikacja webhooków • Custom key loading • <a href="#" onclick="pasteExample(); return false;">Wczytaj przykład</a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <script>
+        // Konfiguracja
+        let DECODE_KEY = [127, 58, 156, 29, 94, 139, 47, 109, 74, 12];
+        let currentWebhooks = [];
+        let isVerifying = false;
+
+        // Ładowanie customowego pliku z kluczem
+        async function loadKeyFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                const content = await file.text();
+                const extractedKey = extractKeyFromFile(content);
+                
+                if (extractedKey) {
+                    DECODE_KEY = extractedKey;
+                    
+                    // Aktualizuj UI
+                    document.getElementById('keyInfo').style.display = 'block';
+                    document.getElementById('defaultKeyInfo').style.display = 'none';
+                    document.getElementById('keyPreview').textContent = '[' + extractedKey.join(', ') + ']';
+                    
+                    showToast(`✅ Wczytano klucz z pliku ${file.name}`, 'success');
+                } else {
+                    showToast('❌ Nie znaleziono tablicy klucza w pliku', 'error');
+                }
+            } catch (error) {
+                showToast('❌ Błąd podczas wczytywania pliku', 'error');
+                console.error(error);
+            }
+            
+            // Clear input
+            event.target.value = '';
+        }
+
+        // Wyciąganie klucza z pliku Java
+        function extractKeyFromFile(content) {
+            // Szukaj tablicy int[] (różne nazwy zmiennych)
+            const patterns = [
+                /int\[\]\s*(\w+)\s*=\s*new\s*int\[\]\s*\{\s*([^}]+)\s*\};/g,  // standard
+                /private\s+static\s+final\s+int\[\]\s*(\w+)\s*=\s*\{\s*([^}]+)\s*\};/g,  // bez new int[]
+                /\[\]\s*(\w+)\s*=\s*\{\s*([^}]+)\s*\}/g,  // uproszczone
+                /IlIlIlIl\s*=\s*new\s*int\[\]\s*\{\s*([^}]+)\s*\}/g,  // specyficzna nazwa
+            ];
+
+            for (const pattern of patterns) {
+                const matches = [...content.matchAll(pattern)];
+                
+                for (const match of matches) {
+                    const numbers = match[2]?.match(/-?\d+/g) || match[1]?.match(/-?\d+/g);
+                    
+                    if (numbers && numbers.length > 0) {
+                        const key = numbers.map(n => parseInt(n, 10));
+                        
+                        // Sprawdź czy to wygląda na klucz (zazwyczaj 10 liczb)
+                        if (key.length >= 5 && key.length <= 20) {
+                            return key;
+                        }
+                    }
+                }
+            }
+
+            // Szukaj samych liczb w kontekście
+            const keyPattern = /(?:key|klucz|decode|IlIlIlIl)\s*[=:]\s*\[\s*([\d,\s]+)\s*\]/i;
+            const keyMatch = content.match(keyPattern);
+            if (keyMatch) {
+                const numbers = keyMatch[1].match(/-?\d+/g);
+                if (numbers) {
+                    return numbers.map(n => parseInt(n, 10));
+                }
+            }
+
+            return null;
+        }
+
+        // Funkcja dekodująca webhook z customowym kluczem
+        function decodeWebhook(encodedArray) {
+            try {
+                let result = [];
+                for (let i = 0; i < encodedArray.length; i++) {
+                    let x = encodedArray[i] ^ ((i * 7 + 3) % 256);
+                    x = x ^ DECODE_KEY[i % DECODE_KEY.length];
+                    result.push(String.fromCharCode(x & 0xFF));
+                }
+                return result.join('');
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Wyciąganie tablic int[] z tekstu
+        function extractIntArrays(text) {
+            const arrays = [];
+            const pattern = /int\[\]\s*(\w+)\s*=\s*new\s*int\[\]\s*\{\s*([^}]+)\s*\};/g;
+            let match;
+            
+            while ((match = pattern.exec(text)) !== null) {
+                const numbers = match[2].match(/-?\d+/g);
+                if (numbers && numbers.length > 0) {
+                    arrays.push({
+                        name: match[1],
+                        values: numbers.map(n => parseInt(n, 10))
+                    });
+                }
+            }
+            return arrays;
+        }
+
+        // Sprawdzanie czy webhook jest aktywny
+        async function verifyWebhook(url) {
+            if (!url || (!url.includes('discord.com/api/webhooks/') && !url.includes('discordapp.com/api/webhooks/'))) {
+                return { valid: false, error: 'Nieprawidłowy format URL' };
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return { 
+                        valid: true, 
+                        data: {
+                            name: data.name,
+                            channel: data.channel_id,
+                            guild: data.guild_id,
+                            token: data.token,
+                            id: data.id
+                        }
+                    };
+                } else if (response.status === 404) {
+                    return { valid: false, error: 'Webhook nie istnieje (404)' };
+                } else if (response.status === 401 || response.status === 403) {
+                    return { valid: true, error: 'Webhook istnieje ale wymaga autoryzacji' };
+                } else {
+                    return { valid: false, error: `Błąd HTTP ${response.status}` };
+                }
+            } catch (error) {
+                return { valid: false, error: 'Nie można połączyć' };
+            }
+        }
+
+        // Pobierz informacje o użyciu webhooka
+        function getWebhookUse(varName) {
+            const uses = {
+                'IllIllIl': 'captureToken() - wysyłanie tokenów',
+                'lIllIllI': 'captureLogin() - wysyłanie logowań',
+                'IlIllIlI': 'pobieranie IP (przez Net.a)'
+            };
+            return uses[varName] || 'tablica pomocnicza';
+        }
+
+        // Główna funkcja
+        async function extractAndVerify() {
+            const javaCode = document.getElementById('javaCode').value;
+            
+            if (!javaCode.trim()) {
+                showToast('❌ Wklej kod Java!', 'error');
+                return;
+            }
+
+            if (isVerifying) {
+                showToast('⚠️ Weryfikacja już trwa...', 'warning');
+                return;
+            }
+
+            isVerifying = true;
+            
+            // Pokaż progress bar
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('noResults').style.display = 'none';
+            
+            // Wyciągnij tablice
+            const arrays = extractIntArrays(javaCode);
+            
+            if (arrays.length === 0) {
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('progressBar').style.display = 'none';
+                document.getElementById('noResults').style.display = 'block';
+                showToast('❌ Nie znaleziono tablic int[]', 'error');
+                isVerifying = false;
+                return;
+            }
+
+            // Update statystyk
+            document.getElementById('totalArrays').textContent = arrays.length;
+            
+            // Dekoduj webhooki
+            const webhooks = [];
+            for (let arr of arrays) {
+                const decoded = decodeWebhook(arr.values);
+                if (decoded && decoded.length > 0) {
+                    const isWebhook = decoded.includes('discord.com/api/webhooks/') || 
+                                      decoded.includes('discordapp.com/api/webhooks/') ||
+                                      decoded.includes('https://');
+                    
+                    webhooks.push({
+                        name: arr.name,
+                        url: decoded,
+                        isWebhook: isWebhook,
+                        use: getWebhookUse(arr.name),
+                        verified: false,
+                        valid: false,
+                        checking: false,
+                        data: null,
+                        error: null
+                    });
+                }
+            }
+
+            document.getElementById('potentialWebhooks').textContent = webhooks.length;
+            currentWebhooks = webhooks;
+
+            // Wyświetl listę
+            renderWebhookList(webhooks);
+            document.getElementById('resultsSection').style.display = 'block';
+
+            // Weryfikuj webhooki
+            let verified = 0;
+            let active = 0;
+            let inactive = 0;
+
+            for (let i = 0; i < webhooks.length; i++) {
+                const webhook = webhooks[i];
+                
+                if (webhook.isWebhook) {
+                    webhook.checking = true;
+                    renderWebhookList(webhooks);
+                    
+                    const result = await verifyWebhook(webhook.url);
+                    
+                    webhook.verified = true;
+                    webhook.checking = false;
+                    webhook.valid = result.valid;
+                    webhook.data = result.data;
+                    webhook.error = result.error;
+                    
+                    if (result.valid) active++;
+                    else inactive++;
+                }
+                
+                verified++;
+                document.getElementById('progressFill').style.width = `${(verified / webhooks.length) * 100}%`;
+                renderWebhookList(webhooks);
+            }
+
+            // Update statystyk końcowych
+            document.getElementById('activeWebhooks').textContent = active;
+            document.getElementById('inactiveWebhooks').textContent = inactive;
+            
+            // Enable copy button jeśli są aktywne webhooki
+            document.getElementById('copyAllBtn').disabled = active === 0;
+            document.getElementById('exportBtn').style.display = 'inline-block';
+            
+            isVerifying = false;
+            
+            if (active > 0) {
+                showToast(`✅ Znaleziono ${active} aktywnych webhooków!`, 'success');
+            }
+        }
+
+        // Renderowanie listy webhooków
+        function renderWebhookList(webhooks) {
+            const list = document.getElementById('webhookList');
+            list.innerHTML = '';
+
+            webhooks.forEach((webhook, index) => {
+                const card = document.createElement('div');
+                card.className = 'webhook-card';
+                
+                if (webhook.checking) {
+                    card.classList.add('checking');
+                } else if (webhook.verified) {
+                    card.classList.add(webhook.valid ? 'valid' : 'invalid');
+                }
+
+                let statusBadge = '';
+                if (webhook.checking) {
+                    statusBadge = '<span class="webhook-badge badge-checking"><span class="loader" style="margin-right: 4px;"></span> Sprawdzanie...</span>';
+                } else if (webhook.verified) {
+                    if (webhook.valid) {
+                        statusBadge = '<span class="webhook-badge badge-valid">✅ Aktywny</span>';
+                    } else {
+                        statusBadge = `<span class="webhook-badge badge-invalid">❌ ${webhook.error || 'Nieaktywny'}</span>`;
+                    }
+                } else {
+                    statusBadge = '<span class="webhook-badge">⏳ Oczekuje</span>';
+                }
+
+                let webhookInfo = '';
+                if (webhook.valid && webhook.data) {
+                    webhookInfo = `
+                        <div style="margin-top: 8px; padding: 8px; background: var(--bg-tertiary); border-radius: 8px; font-size: 12px;">
+                            <div>📌 Nazwa: ${webhook.data.name || 'Brak'}</div>
+                            <div>📺 Kanał: ${webhook.data.channel || '?'}</div>
+                            <div>🏰 Serwer: ${webhook.data.guild || '?'}</div>
+                            <div>🔑 ID: ${webhook.data.id || '?'}</div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="webhook-header">
+                        <span class="webhook-name">
+                            ${webhook.isWebhook ? '🔗' : '📄'} ${webhook.name}
+                            ${webhook.isWebhook ? '' : '<span style="color: var(--text-secondary); font-size: 12px; margin-left: 8px;">(nie jest webhookiem)</span>'}
+                        </span>
+                        ${statusBadge}
+                    </div>
+                    <div class="webhook-url" onclick="copyText('${webhook.url.replace(/'/g, "\\'")}')" title="Kliknij aby skopiować">
+                        ${webhook.url.length > 100 ? webhook.url.substring(0, 100) + '...' : webhook.url}
+                    </div>
+                    <div class="webhook-meta">
+                        <div class="webhook-use">
+                            <span>📌 ${webhook.use}</span>
+                            <span style="color: var(--text-secondary);">• ${webhook.url.length} znaków</span>
+                        </div>
+                        <div class="webhook-actions">
+                            <button class="btn-icon" onclick="copyText('${webhook.url.replace(/'/g, "\\'")}')">📋 Kopiuj</button>
+                            ${webhook.valid ? `<button class="btn-icon" onclick="testWebhook('${webhook.url.replace(/'/g, "\\'")}')">🔍 Testuj</button>` : ''}
+                        </div>
+                    </div>
+                    ${webhookInfo}
+                `;
+
+                list.appendChild(card);
+            });
+        }
+
+        // Funkcje pomocnicze
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Skopiowano do schowka!', 'success');
+            });
+        }
+
+        async function copyAllValid() {
+            const validWebhooks = currentWebhooks.filter(w => w.valid).map(w => w.url).join('\n\n');
+            if (validWebhooks) {
+                await navigator.clipboard.writeText(validWebhooks);
+                showToast(`✅ Skopiowano ${currentWebhooks.filter(w => w.valid).length} aktywnych webhooków!`, 'success');
+            }
+        }
+
+        function testWebhook(url) {
+            window.open(url, '_blank');
+        }
+
+        function exportResults() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                decodeKey: DECODE_KEY,
+                webhooks: currentWebhooks.map(w => ({
+                    name: w.name,
+                    url: w.url,
+                    valid: w.valid,
+                    use: w.use,
+                    data: w.data
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `webhooks-${Date.now()}.json`;
+            a.click();
+            
+            showToast('✅ Eksportowano do pliku JSON', 'success');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.background = type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 
+                                    type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 
+                                    'rgba(99, 102, 241, 0.2)';
+            toast.style.borderColor = type === 'success' ? 'var(--success)' : 
+                                      type === 'error' ? 'var(--danger)' : 
+                                      'var(--accent)';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function resetKey() {
+            DECODE_KEY = [127, 58, 156, 29, 94, 139, 47, 109, 74, 12];
+            document.getElementById('keyInfo').style.display = 'none';
+            document.getElementById('defaultKeyInfo').style.display = 'block';
+            showToast('✅ Przywrócono domyślny klucz', 'success');
+        }
+
+        function clearAll() {
+            document.getElementById('javaCode').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('noResults').style.display = 'block';
+            document.getElementById('totalArrays').textContent = '0';
+            document.getElementById('potentialWebhooks').textContent = '0';
+            document.getElementById('activeWebhooks').textContent = '0';
+            document.getElementById('inactiveWebhooks').textContent = '0';
+            document.getElementById('copyAllBtn').disabled = true;
+            document.getElementById('exportBtn').style.display = 'none';
+            currentWebhooks = [];
+            isVerifying = false;
+        }
+
+        function pasteExample() {
+            const example = `public class Logger {
+    private static final int[] IllIllIl = new int[]{20, 68, 249, 117, 50, 151, 45, 118, 21, 39, 69, 9, 164, 49, 95, 201, 63, 120, 166, 171, 145, 220, 104, 150, 130, 92, 244, 197, 226, 173, 193, 149, 80, 198, 155, 68, 233, 82, 113, 40, 80, 45, 133, 26, 94, 134, 82, 16, 44, 98, 39, 101, 220, 49, 107, 104, 239, 173, 227, 229, 224, 173, 66, 241, 244, 54, 191, 244, 217, 218, 193, 160, 1, 45, 53, 252, 113, 34, 42, 71, 62, 74, 229, 31, 107, 238, 42, 102, 87, 13, 99, 236, 74, 250, 134, 80, 190, 145, 205, 129, 248, 133, 55, 248, 180, 63, 176, 240, 231, 198, 24, 78, 199, 83, 74, 142, 116, 19, 32, 2, 2};
+    private static final int[] lIllIllI = new int[]{20, 68, 249, 117, 50, 151, 45, 118, 21, 39, 69, 9, 164, 49, 95, 201, 63, 120, 166, 171, 145, 220, 104, 150, 130, 92, 244, 197, 226, 173, 193, 149, 80, 198, 155, 68, 233, 82, 113, 40, 86, 32, 132, 27, 92, 140, 94, 22, 45, 102, 41, 97, 220, 94, 108, 64, 150, 154, 146, 235, 245, 160, 93, 240, 216, 53, 175, 240, 164, 172, 241, 180, 49, 116, 21, 195, 114, 55, 30, 77, 35, 110, 229, 20, 115, 143, 34, 88, 118, 31, 73, 136, 74, 235, 138, 85, 185, 130, 130, 249, 135, 158, 105, 133, 183, 60, 162, 216, 228, 149, 57, 127, 195, 96, 7, 147, 114, 19, 36, 36, 120};
+    private static final int[] IlIllIlI = new int[]{20, 68, 249, 117, 50, 151, 45, 118, 16, 62, 95, 68, 162, 51, 82, 129, 37, 57, 164, 246, 151, 147, 103, 214, 135, 84, 247, 217, 176, 168, 217, 137, 17};
+}`;
+            document.getElementById('javaCode').value = example;
+        }
+
+        // Auto-paste detection
+        document.getElementById('javaCode').addEventListener('paste', function() {
+            setTimeout(extractAndVerify, 100);
+        });
+
+        // Initialize
+        document.getElementById('noResults').style.display = 'block';
+    </script>
+</body>
+</html>
